@@ -50,22 +50,24 @@ const GorbPeek: React.FC = () => {
 
   return (
     <div
-      className="fixed transition-all duration-1000 ease-out"
+      className="fixed transition-all duration-1000 ease-out overflow-hidden"
       style={{
         left: position === 'right' ? '80%' : '20%',
         top: '15%',
         width: 'clamp(60px, 10vw, 100px)',
         height: 'clamp(60px, 10vw, 100px)',
-        transform: isVisible 
-          ? 'translateY(0)' 
-          : 'translateY(100%)',
-        zIndex: 25,
+        zIndex: 5, // Behind background (z-10) so it appears to go behind it
       }}
     >
       <img
         src={`/other-images/${currentExpression}`}
         alt="Gorb peeking"
-        className="w-full h-full object-contain drop-shadow-2xl"
+        className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-1000"
+        style={{
+          transform: isVisible 
+            ? 'translateY(0)' 
+            : 'translateY(100%)',
+        }}
       />
     </div>
   );
