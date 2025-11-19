@@ -4,6 +4,7 @@ import { fetchGorbhouseMemes } from '../services/memeService';
 import { updateRatings } from '../services/eloService';
 import MemeCard from './MemeCard';
 import Leaderboard from './Leaderboard';
+import HallOfFame from './HallOfFame';
 
 const INITIAL_RATING = 1200;
 
@@ -14,6 +15,7 @@ const MainSite: React.FC = () => {
   const [isVoting, setIsVoting] = useState(false);
   const [votedFor, setVotedFor] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showHallOfFame, setShowHallOfFame] = useState(false);
 
   useEffect(() => {
     const loadMemes = async () => {
@@ -141,44 +143,80 @@ const MainSite: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10 min-h-screen text-white flex flex-col p-4 sm:p-6 lg:p-8">
-        <header className="text-center mb-4">
-          <h1 className="text-4xl sm:text-5xl text-white drop-shadow-[0_5px_15px_rgba(168,85,247,0.4)]">
-            GORBHOUSE MEME RANKER
-          </h1>
-          <p className="mt-2 text-lg text-gray-300 drop-shadow-lg">Which meme reigns supreme? You decide!</p>
+        <header className="mb-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex-grow text-center sm:text-left">
+              <h1 className="text-4xl sm:text-5xl text-white drop-shadow-[0_5px_15px_rgba(168,85,247,0.4)]">
+                GORBHOUSE MEME RANKER
+              </h1>
+              <p className="mt-2 text-lg text-gray-300 drop-shadow-lg">
+                {showHallOfFame ? 'The Elite. The Legendary. The Unforgettable.' : 'Which meme reigns supreme? You decide!'}
+              </p>
+            </div>
+            <div className="flex gap-3 flex-wrap justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 border-2 border-green-400 whitespace-nowrap"
+              >
+                🏠 Home
+              </button>
+              <button
+                onClick={() => setShowHallOfFame(!showHallOfFame)}
+                className={`px-6 py-3 font-bold rounded-lg shadow-lg hover:scale-105 transition-all duration-300 border-2 whitespace-nowrap ${
+                  showHallOfFame
+                    ? 'bg-gradient-to-r from-purple-500 to-purple-700 text-white hover:shadow-purple-500/50 border-purple-400'
+                    : 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-black hover:shadow-yellow-400/50 border-yellow-300'
+                }`}
+              >
+                {showHallOfFame ? '🎮 Back to Voting' : '🏆 View Hall of Fame'}
+              </button>
+            </div>
+          </div>
         </header>
 
         <main className="flex-grow flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="lg:w-2/3 flex flex-col items-center justify-center p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10">
-            <h2 className="text-xl sm:text-2xl mb-4 text-gray-300">CLICK YOUR FAVORITE MEME</h2>
-            {meme1 && meme2 && currentPair ? (
-              <div className="w-full flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6">
-                <MemeCard
-                  key={meme1.id}
-                  meme={meme1}
-                  onClick={() => handleVote(currentPair[0], currentPair[1])}
-                  disabled={isVoting}
-                  voteState={getVoteState(currentPair[0])}
-                />
-                <span className="text-3xl text-purple-400 my-2 md:my-0">VS</span>
-                <MemeCard
-                  key={meme2.id}
-                  meme={meme2}
-                  onClick={() => handleVote(currentPair[1], currentPair[0])}
-                  disabled={isVoting}
-                  voteState={getVoteState(currentPair[1])}
-                />
+          {showHallOfFame ? (
+            <div className="w-full flex flex-col">
+              <div className="flex-grow p-8 bg-black/50 backdrop-blur-sm rounded-2xl border border-yellow-400/30 shadow-2xl shadow-yellow-500/20 overflow-y-auto">
+                <HallOfFame memes={sortedMemes} topCount={5} />
               </div>
-            ) : (
-              <div className="flex items-center justify-center h-64">
-                <p className="text-xl text-gray-400">Loading memes...</p>
+            </div>
+          ) : (
+            <>
+              <div className="lg:w-2/3 flex flex-col p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10">
+                <h2 className="text-xl sm:text-2xl mb-8 text-center text-white drop-shadow-[0_3px_10px_rgba(168,85,247,0.4)]">
+                  CLICK YOUR FAVORITE MEME
+                </h2>
+                {meme1 && meme2 && currentPair ? (
+                  <div className="flex-grow flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6">
+                    <MemeCard
+                      key={meme1.id}
+                      meme={meme1}
+                      onClick={() => handleVote(currentPair[0], currentPair[1])}
+                      disabled={isVoting}
+                      voteState={getVoteState(currentPair[0])}
+                    />
+                    <span className="text-3xl text-purple-400 my-2 md:my-0">VS</span>
+                    <MemeCard
+                      key={meme2.id}
+                      meme={meme2}
+                      onClick={() => handleVote(currentPair[1], currentPair[0])}
+                      disabled={isVoting}
+                      voteState={getVoteState(currentPair[1])}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-grow flex items-center justify-center">
+                    <p className="text-xl text-gray-400">Loading memes...</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="lg:w-1/3 p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
-            <Leaderboard memes={sortedMemes} />
-          </div>
+              <div className="lg:w-1/3 p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
+                <Leaderboard memes={sortedMemes} />
+              </div>
+            </>
+          )}
         </main>
 
 

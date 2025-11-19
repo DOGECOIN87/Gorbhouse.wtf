@@ -42,9 +42,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ memes }) => {
                 className="w-16 h-16 object-contain rounded-md mx-4 bg-black/50"
                 loading="lazy"
               />
-              <div className="flex-grow text-right">
-                <span className="text-lg text-purple-300">{meme.rating}</span>
-                <p className="text-sm text-gray-400">Elo</p>
+              <div className="flex-grow text-right flex items-center justify-end">
+                <span className="text-2xl font-bold text-purple-300">{meme.rating}</span>
               </div>
             </li>
           ))}
