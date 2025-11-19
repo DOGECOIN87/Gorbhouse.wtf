@@ -1,14 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import FloatingGorb from './components/FloatingGorb';
 import Hero from './components/Hero';
+import ParachuteItem from './components/ParachuteItem';
+import NightSky from './components/NightSky';
+import OscarPeek from './components/OscarPeek';
+import GorbPeek from './components/GorbPeek';
+import Rain from './components/Rain';
+import Radio from './components/Radio';
+import UFO from './components/UFO';
+import MainSite from './components/MainSite';
 import type { Gorb } from './types';
 import { GORB_IMAGES } from './constants';
 
 const App: React.FC = () => {
+  const [hasEnteredSite, setHasEnteredSite] = useState(false);
   const [gorbs, setGorbs] = useState<Gorb[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isDaytime, setIsDaytime] = useState(true);
+  const [tempoMultiplier, setTempoMultiplier] = useState(1.0);
   // FIX: Initialize useRef with null to provide an initial value and fix the type error.
   const animationFrameId = useRef<number | null>(null);
+
+  const handleOscarClick = () => {
+    setHasEnteredSite(true);
+  };
+
+  useEffect(() => {
+    const checkTimeOfDay = () => {
+      const hour = new Date().getHours();
+      // Daytime is 6 AM to 6 PM (6-18)
+      setIsDaytime(hour >= 6 && hour < 18);
+    };
+    
+    checkTimeOfDay();
+    // Check every minute
+    const interval = setInterval(checkTimeOfDay, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const generateGorbs = () => {
@@ -51,9 +80,9 @@ const App: React.FC = () => {
 
         // Update positions and handle wall collisions
         nextGorbs.forEach(gorb => {
-          gorb.x += gorb.vx;
-          gorb.y += gorb.vy;
-          gorb.rotation += gorb.rotationSpeed;
+          gorb.x += gorb.vx * tempoMultiplier;
+          gorb.y += gorb.vy * tempoMultiplier;
+          gorb.rotation += gorb.rotationSpeed * tempoMultiplier;
 
           // Wall collision
           if (gorb.x - gorb.size / 2 < 0 || gorb.x + gorb.size / 2 > innerWidth) {
@@ -110,21 +139,51 @@ const App: React.FC = () => {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, []);
+  }, [tempoMultiplier]);
 
   const parallaxX = (mousePos.x - window.innerWidth / 2) / 50;
   const parallaxY = (mousePos.y - window.innerHeight / 2) / 50;
 
+  // If user has entered the site, show the main site
+  if (hasEnteredSite) {
+    return <MainSite />;
+  }
+
   return (
     <div className="relative w-screen h-screen overflow-hidden">
+      {/* Sky layers - z-0 (bottom) */}
+      {!isDaytime && <NightSky />}
+      {isDaytime && (
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-sky-200 -z-10" />
+      )}
+      
+      {/* Background image - z-10 */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 z-10"
+        style={{ 
+          backgroundImage: "url('/other-images/Landfill-Background-Transparent-Sky.png')",
+        }}
+      />
+      
+      {/* Floating gorbs - z-20 */}
       <div
-        className="absolute inset-0 transition-transform duration-300 ease-out"
+        className="absolute inset-0 transition-transform duration-300 ease-out z-20"
         style={{ transform: `translate(${parallaxX}px, ${parallaxY}px)` }}
       >
         {gorbs.map((gorb) => (
           <FloatingGorb key={gorb.id} {...gorb} />
         ))}
       </div>
+      {/* UI elements - z-30+ */}
+      <ParachuteItem 
+        src="/other-images/trashcoinlogo (4).png" 
+        alt="trashcoin" 
+        delay={0}
+      />
+      <Radio onTempoChange={setTempoMultiplier} />
+      <UFO />
+      <OscarPeek onOscarClick={handleOscarClick} />
+      <Rain />
       <Hero />
     </div>
   );

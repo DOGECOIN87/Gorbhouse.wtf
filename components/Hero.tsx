@@ -22,31 +22,14 @@ const ICONS: { [key: string]: React.FC<{className?: string}> } = {
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center w-full h-full text-center p-4">
-      <div className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10">
+    <div className="relative z-40 flex flex-col items-center justify-center w-full h-full text-center p-4 pointer-events-none">
+      <div className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 pointer-events-auto">
         <h1 className="font-bungee text-6xl md:text-8xl lg:text-9xl text-white drop-shadow-[0_5px_15px_rgba(168,85,247,0.4)]">
           GORBHOUSE
         </h1>
         <p className="mt-4 text-lg md:text-2xl text-gray-300">
           The Solana-Gorbagana Meme Community
         </p>
-        <div className="flex justify-center items-center gap-6 mt-8">
-            {SOCIAL_LINKS.map(link => {
-                const Icon = ICONS[link.icon];
-                return (
-                    <a
-                        key={link.name}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.name}
-                        className="text-gray-400 hover:text-white hover:scale-110 transition-all duration-300"
-                    >
-                       {Icon && <Icon className="w-8 h-8 md:w-10 md:h-10" />}
-                    </a>
-                )
-            })}
-        </div>
       </div>
     </div>
   );
