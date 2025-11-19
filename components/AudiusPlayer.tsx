@@ -1,7 +1,10 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { AudiusTrack, AudiusUser } from '../types';
 import { getArtistTracks } from '../services/audius';
+import { sendTip, isValidSolanaAddress } from '../services/solanaService';
 import { APP_NAME } from '../constants';
 import Spinner from './Spinner';
 
@@ -15,6 +18,9 @@ const getTrackArtwork = (track: AudiusTrack): string => {
 };
 
 const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
+  const wallet = useWallet();
+  const { setVisible: setWalletModalVisible } = useWalletModal();
+  
   const [host, setHost] = useState<string | null>(null);
   const [user, setUser] = useState<AudiusUser | null>(null);
   const [tracks, setTracks] = useState<AudiusTrack[]>([]);
@@ -22,8 +28,7 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock Solana Wallet State
-  const [connected, setConnected] = useState(false);
+  // Solana Wallet State
   const [tipping, setTipping] = useState(false);
   const [tipAmount, setTipAmount] = useState('0.1');
   const [txSig, setTxSig] = useState<string | null>(null);
@@ -91,25 +96,40 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
   }, [tracks.length]);
 
   const handleTip = useCallback(async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      setWalletModalVisible(true);
+      return;
+    }
+
     if (!currentTrack?.user?.spl_wallet) {
       setError("Artist doesn't have a linked Solana wallet.");
       return;
     }
+
+    if (!isValidSolanaAddress(currentTrack.user.spl_wallet)) {
+      setError("Artist's Solana wallet address is invalid.");
+      return;
+    }
+
     const amount = parseFloat(tipAmount);
     if (isNaN(amount) || amount <= 0) {
       setError('Please enter a valid tip amount.');
       return;
     }
+
     setTipping(true);
     setError(null);
     setTxSig(null);
-    
-    // Simulate transaction
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setTipping(false);
-    setTxSig(`simulated_tx_${Date.now().toString(36)}`);
-  }, [currentTrack, tipAmount]);
+
+    try {
+      const result = await sendTip(wallet, currentTrack.user.spl_wallet, amount);
+      setTxSig(result.signature);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send tip');
+    } finally {
+      setTipping(false);
+    }
+  }, [wallet, currentTrack, tipAmount, setWalletModalVisible]);
 
   if (loading) {
     return (
@@ -169,9 +189,12 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
       
       <div className="border-t border-white/10 pt-4 mt-2">
         <h3 className="text-sm font-semibold text-gray-300 mb-2">Tip Artist (SOL)</h3>
-        {connected ? (
+        {wallet.connected && wallet.publicKey ? (
           <div className="flex flex-col gap-3">
-             <div className="flex items-center gap-2">
+            <div className="text-xs text-purple-300 mb-2">
+              Connected: {wallet.publicKey.toString().slice(0, 8)}...
+            </div>
+            <div className="flex items-center gap-2">
               <input
                 type="number"
                 min="0"
@@ -189,15 +212,28 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
                 {tipping ? <Spinner /> : `Tip ${tipAmount} SOL`}
               </button>
             </div>
-            {txSig && (
-                <div className="text-xs text-emerald-400 mt-1 break-all bg-emerald-900/50 p-2 rounded-md">
-                    <strong>Success!</strong> Tip sent (simulated). Tx: {txSig}
-                </div>
+            {error && (
+              <div className="text-xs text-red-400 bg-red-900/50 p-2 rounded-md">
+                {error}
+              </div>
             )}
-            <button onClick={() => setConnected(false)} className="text-xs text-gray-400 hover:text-white mt-2">Disconnect Wallet</button>
+            {txSig && (
+              <div className="text-xs text-emerald-400 bg-emerald-900/50 p-2 rounded-md break-all">
+                <strong>Success!</strong> Tip sent! Tx: {txSig}
+              </div>
+            )}
+            <button 
+              onClick={() => wallet.disconnect()} 
+              className="text-xs text-gray-400 hover:text-white mt-2"
+            >
+              Disconnect Wallet
+            </button>
           </div>
         ) : (
-          <button onClick={() => setConnected(true)} className="w-full py-2.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm font-semibold">
+          <button 
+            onClick={() => setWalletModalVisible(true)} 
+            className="w-full py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 transition-colors text-sm font-semibold"
+          >
             Connect Wallet to Tip
           </button>
         )}

@@ -13,6 +13,7 @@ import Rain from './components/Rain';
 import Radio from './components/Radio';
 import UFO from './components/UFO';
 import MainSite from './components/MainSite';
+import WalletConnector from './components/WalletConnector';
 import type { Gorb } from './types';
 import { GORB_IMAGES } from './constants';
 
@@ -150,7 +151,9 @@ const App: React.FC = () => {
 
   // If user has entered the site, show the main site
   if (hasEnteredSite) {
-    return <MainSite />;
+    return (
+      <MainSite />
+    );
   }
 
   return (
