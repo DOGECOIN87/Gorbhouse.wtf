@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Meme } from '../types';
 import { fetchGorbhouseMemes } from '../services/memeService';
 import { updateRatings } from '../services/eloService';
 import MemeCard from './MemeCard';
 import Leaderboard from './Leaderboard';
 import HallOfFame from './HallOfFame';
+import AudiusPlayer from './AudiusPlayer';
+import { DEFAULT_HANDLE } from '../constants';
 
 const INITIAL_RATING = 1200;
 
@@ -16,6 +18,8 @@ const MainSite: React.FC = () => {
   const [votedFor, setVotedFor] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHallOfFame, setShowHallOfFame] = useState(false);
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     const loadMemes = async () => {
@@ -161,6 +165,12 @@ const MainSite: React.FC = () => {
                 🏠 Home
               </button>
               <button
+                onClick={() => setIsPlayerOpen(true)}
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-700 text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 hover:scale-105 transition-all duration-300 border-2 border-red-400 whitespace-nowrap"
+              >
+                🎵 Music
+              </button>
+              <button
                 onClick={() => setShowHallOfFame(!showHallOfFame)}
                 className={`px-6 py-3 font-bold rounded-lg shadow-lg hover:scale-105 transition-all duration-300 border-2 whitespace-nowrap ${
                   showHallOfFame
@@ -219,7 +229,34 @@ const MainSite: React.FC = () => {
           )}
         </main>
 
+        {/* Audio element */}
+        <audio ref={audioRef} className="hidden" />
 
+        {/* Music Player Modal */}
+        {isPlayerOpen && (
+          <div 
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setIsPlayerOpen(false)}
+          >
+            <div 
+              className="relative bg-black/80 rounded-2xl border-2 border-red-400 shadow-2xl shadow-red-500/50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setIsPlayerOpen(false)}
+                className="absolute -top-4 -right-4 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center shadow-lg transition-colors"
+              >
+                ×
+              </button>
+              <div className="p-6">
+                <AudiusPlayer 
+                  artistHandle={DEFAULT_HANDLE} 
+                  audioRef={audioRef}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

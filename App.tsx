@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import FloatingGorb from './components/FloatingGorb';
 import Hero from './components/Hero';
 import ParachuteItem from './components/ParachuteItem';
+import GorboyconsoleFloat from './components/GorboyconsoleFloat';
+import ChillFloat from './components/ChillFloat';
+import ConfusedFloat from './components/ConfusedFloat';
+import GorweldLogoFloat from './components/GorweldLogoFloat';
 import NightSky from './components/NightSky';
 import OscarPeek from './components/OscarPeek';
 import GorbPeek from './components/GorbPeek';
@@ -180,6 +184,10 @@ const App: React.FC = () => {
         alt="trashcoin" 
         delay={0}
       />
+      <ChillFloat />
+      <GorboyconsoleFloat />
+      <ConfusedFloat />
+      <GorweldLogoFloat />
       <Radio onTempoChange={setTempoMultiplier} />
       <UFO />
       <OscarPeek onOscarClick={handleOscarClick} />
