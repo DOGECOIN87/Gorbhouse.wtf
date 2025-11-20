@@ -9,6 +9,13 @@ import AudiusPlayer from './AudiusPlayer';
 import { DEFAULT_HANDLE } from '../constants';
 
 const INITIAL_RATING = 1200;
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/vote`;
+
+interface Toast {
+  id: string;
+  message: string;
+  type: 'success' | 'error';
+}
 
 const MainSite: React.FC = () => {
   console.log('MainSite component rendering');
@@ -19,7 +26,9 @@ const MainSite: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showHallOfFame, setShowHallOfFame] = useState(false);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const voteRetryRef = useRef<{ winnerId: string; loserId: string } | null>(null);
 
   useEffect(() => {
     const loadMemes = async () => {
@@ -64,6 +73,14 @@ const MainSite: React.FC = () => {
     }
   }, [memes.length, selectNewPair]);
 
+  const addToast = useCallback((message: string, type: 'success' | 'error') => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3000);
+  }, []);
+
   const handleVote = useCallback(async (winnerIndex: number, loserIndex: number) => {
     if (isVoting) return;
     setIsVoting(true);
@@ -73,8 +90,7 @@ const MainSite: React.FC = () => {
     const loser = memes[loserIndex];
 
     try {
-        const API_VOTE = 'http://localhost:3000/api/vote';
-        const response = await fetch(API_VOTE, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -86,14 +102,24 @@ const MainSite: React.FC = () => {
         });
         
         if (!response.ok) {
-            console.error('Vote failed:', await response.text());
-            // Fallback: Do not update state or recover
+            const errorText = await response.text();
+            console.error('Vote failed:', errorText);
+            voteRetryRef.current = { winnerId: winner.id, loserId: loser.id };
+            addToast('Vote failed. Retrying...', 'error');
+            
+            // Retry after 2 seconds
+            setTimeout(() => {
+              if (voteRetryRef.current) {
+                handleVote(winnerIndex, loserIndex);
+              }
+            }, 2000);
+            return;
         } else {
             const result = await response.json();
             const { winner: rWinner, loser: rLoser } = result;
             
-            // Optimistically update state or use result
-             const updatedMemes = memes.map((meme) => {
+            // Update state with new ratings
+            const updatedMemes = memes.map((meme) => {
                 if (meme.id === rWinner.id) {
                     return { ...meme, rating: rWinner.rating };
                 }
@@ -103,15 +129,28 @@ const MainSite: React.FC = () => {
                 return meme;
             });
             setMemes(updatedMemes);
+            voteRetryRef.current = null;
+            addToast('Vote recorded!', 'success');
         }
     } catch (error) {
         console.error('Vote error:', error);
+        voteRetryRef.current = { winnerId: winner.id, loserId: loser.id };
+        addToast('Network error. Retrying...', 'error');
+        
+        // Retry after 2 seconds
+        setTimeout(() => {
+          if (voteRetryRef.current) {
+            handleVote(winnerIndex, loserIndex);
+          }
+        }, 2000);
+        return;
     }
     
     setTimeout(() => {
+      setIsVoting(false);
       selectNewPair();
     }, 800);
-  }, [memes, selectNewPair, isVoting]);
+  }, [memes, selectNewPair, isVoting, addToast]);
 
   const sortedMemes = useMemo(() => {
     return [...memes].sort((a, b) => b.rating - a.rating);
@@ -275,6 +314,22 @@ const MainSite: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Toast Notifications */}
+        <div className="fixed bottom-4 right-4 z-40 space-y-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm border animate-fade-in ${
+                toast.type === 'success'
+                  ? 'bg-green-500/80 border-green-400 text-white'
+                  : 'bg-red-500/80 border-red-400 text-white'
+              }`}
+            >
+              {toast.message}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

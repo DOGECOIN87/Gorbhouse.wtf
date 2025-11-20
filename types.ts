@@ -36,7 +36,10 @@ export interface AudiusTrack {
 }
 
 export interface Meme {
-  id: number;
+  id: string;
   url: string;
   rating: number;
+  wins?: number;
+  losses?: number;
+  matches?: number;
 }

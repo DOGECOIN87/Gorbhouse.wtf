@@ -23,19 +23,14 @@ app.get('/api/memes', (req, res) => {
       return;
     }
     
-    // Transform rows to match frontend format if needed
-    // Frontend expects { id: number/string, url: string, rating: number }
-    // But wait, database has 'id' as string (UUID) and 'rating'.
-    // The frontend 'fetchGorbhouseMemes' generates URLs from IDs.
-    // So we just need to return the stats, and frontend merges them?
-    // Or we can construct URLs here. 
-    // Frontend uses `services/memeService.ts` which imports static IDs.
-    // Ideally backend provides everything.
-    // Let's construct URLs here to be a true API.
+    // Get the protocol and host from the request
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const baseUrl = `${protocol}://${host}`;
     
     const memes = rows.map(row => ({
         id: row.id,
-        url: `https://memedepot.com/cdn-cgi/imagedelivery/naCPMwxXX46-hrE49eZovw/${row.id}/public`,
+        url: `${baseUrl}/api/meme-image/${row.id}`,
         rating: row.rating,
         wins: row.wins,
         losses: row.losses
@@ -106,6 +101,26 @@ app.post('/api/vote', (req, res) => {
                 });
             });
         });
+    });
+});
+
+// Serve meme images from local storage
+const path = require('path');
+app.get('/api/meme-image/:memeId', (req, res) => {
+    const { memeId } = req.params;
+    const imagePath = path.join(__dirname, '../public/memes', `${memeId}.png`);
+    
+    // Security: prevent directory traversal
+    if (!imagePath.startsWith(path.join(__dirname, '../public/memes'))) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.sendFile(imagePath, (err) => {
+        if (err) {
+            console.error(`Image not found: ${memeId}`, err.message);
+            res.status(404).json({ error: 'Image not found' });
+        }
     });
 });
 

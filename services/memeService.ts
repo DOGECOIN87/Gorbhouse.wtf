@@ -1,6 +1,6 @@
 import { Meme } from '../types';
 
-const API_URL = 'http://localhost:3000/api/memes';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/memes`;
 
 // Fetch memes from backend
 export async function fetchGorbhouseMemes(): Promise<Meme[]> {
