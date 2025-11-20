@@ -13,7 +13,6 @@ export const GORB_IMAGES = [
 export const SOCIAL_LINKS = [
     { name: 'Twitter', url: 'https://x.com', icon: 'twitter' },
     { name: 'Telegram', url: 'https://telegram.org', icon: 'telegram' },
-    { name: 'Solana', url: 'https://solana.com', icon: 'solana' },
 ];
 
 export const APP_NAME = 'AudiusPlayerDemo';

@@ -1,7 +1,8 @@
 import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 
-const SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
+// UsixtrExtroode as a public as aaggreg tor toubvoidl403 errc sPgn dgvaavvirdnme40sin dev environments
+const SOLANA_RPC_URL = 'https://solana-mainnet.rpc.extrnode.com';
 
 export const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
 
