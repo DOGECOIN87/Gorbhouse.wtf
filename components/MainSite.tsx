@@ -24,17 +24,12 @@ const MainSite: React.FC = () => {
   useEffect(() => {
     const loadMemes = async () => {
       try {
-        console.log('Fetching memes...');
-        const urls = await fetchGorbhouseMemes();
-        console.log('Fetched memes:', urls.length);
+        console.log('Fetching memes from backend...');
+        const fetchedMemes = await fetchGorbhouseMemes();
+        console.log('Fetched memes:', fetchedMemes.length);
         
-        const memeData: Meme[] = urls.map((url, index) => ({
-          id: index,
-          url,
-          rating: INITIAL_RATING,
-        }));
-        setMemes(memeData);
-        console.log(`Initialized ${memeData.length} memes`);
+        // fetchedMemes are already proper Meme objects with current ratings
+        setMemes(fetchedMemes);
       } catch (error) {
         console.error('Error loading memes:', error);
       } finally {
@@ -69,7 +64,7 @@ const MainSite: React.FC = () => {
     }
   }, [memes.length, selectNewPair]);
 
-  const handleVote = useCallback((winnerIndex: number, loserIndex: number) => {
+  const handleVote = useCallback(async (winnerIndex: number, loserIndex: number) => {
     if (isVoting) return;
     setIsVoting(true);
     setVotedFor(winnerIndex);
@@ -77,19 +72,42 @@ const MainSite: React.FC = () => {
     const winner = memes[winnerIndex];
     const loser = memes[loserIndex];
 
-    const { newWinnerRating, newLoserRating } = updateRatings(winner.rating, loser.rating);
-
-    const updatedMemes = memes.map((meme, index) => {
-      if (index === winnerIndex) {
-        return { ...meme, rating: newWinnerRating };
-      }
-      if (index === loserIndex) {
-        return { ...meme, rating: newLoserRating };
-      }
-      return meme;
-    });
-
-    setMemes(updatedMemes);
+    try {
+        const API_VOTE = 'http://localhost:3000/api/vote';
+        const response = await fetch(API_VOTE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                winnerId: winner.id,
+                loserId: loser.id
+            }),
+        });
+        
+        if (!response.ok) {
+            console.error('Vote failed:', await response.text());
+            // Fallback: Do not update state or recover
+        } else {
+            const result = await response.json();
+            const { winner: rWinner, loser: rLoser } = result;
+            
+            // Optimistically update state or use result
+             const updatedMemes = memes.map((meme) => {
+                if (meme.id === rWinner.id) {
+                    return { ...meme, rating: rWinner.rating };
+                }
+                if (meme.id === rLoser.id) {
+                    return { ...meme, rating: rLoser.rating };
+                }
+                return meme;
+            });
+            setMemes(updatedMemes);
+        }
+    } catch (error) {
+        console.error('Vote error:', error);
+    }
+    
     setTimeout(() => {
       selectNewPair();
     }, 800);

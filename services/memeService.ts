@@ -1,13 +1,19 @@
-import { GORBHOUSE_MEME_IDS } from '../src/data/memeIds';
+import { Meme } from '../types';
 
-// Fetch memes - uses pre-fetched IDs to avoid CORS issues
-export async function fetchGorbhouseMemes(): Promise<string[]> {
-  console.log(`Loading ${GORBHOUSE_MEME_IDS.length} Gorbhouse memes...`);
-  
-  // Convert meme IDs to Cloudflare CDN URLs
-  const memeUrls = GORBHOUSE_MEME_IDS.map(
-    id => `https://memedepot.com/cdn-cgi/imagedelivery/naCPMwxXX46-hrE49eZovw/${id}/public`
-  );
-  
-  return memeUrls;
+const API_URL = 'http://localhost:3000/api/memes';
+
+// Fetch memes from backend
+export async function fetchGorbhouseMemes(): Promise<Meme[]> {
+  console.log('Fetching memes from backend...');
+  try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+          throw new Error(`Failed to fetch memes: ${response.statusText}`);
+      }
+      const json = await response.json();
+      return json.data;
+  } catch (error) {
+      console.error("Error fetching memes:", error);
+      return [];
+  }
 }

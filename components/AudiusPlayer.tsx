@@ -101,13 +101,10 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
       return;
     }
 
-    if (!currentTrack?.user?.spl_wallet) {
-      setError("Artist doesn't have a linked Solana wallet.");
-      return;
-    }
+    const ARTIST_WALLET = "Hn1i7bLb7oHpAL5AoyGvkn7YgwmWrVTbVsjXA1LYnELo";
 
-    if (!isValidSolanaAddress(currentTrack.user.spl_wallet)) {
-      setError("Artist's Solana wallet address is invalid.");
+    if (!isValidSolanaAddress(ARTIST_WALLET)) {
+      setError("Configuration error: Invalid recipient wallet.");
       return;
     }
 
@@ -122,7 +119,7 @@ const AudiusPlayer: React.FC<Props> = ({ artistHandle, audioRef }) => {
     setTxSig(null);
 
     try {
-      const result = await sendTip(wallet, currentTrack.user.spl_wallet, amount);
+      const result = await sendTip(wallet, ARTIST_WALLET, amount);
       setTxSig(result.signature);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send tip');
