@@ -19,7 +19,10 @@ export async function fetchGorbhouseMemes(): Promise<Meme[]> {
     const { data, error } = await supabase
       .from('memes')
       .select('*')
-      .order('rating', { ascending: false });
+      .order('rating', { ascending: false })
+      .order('wins', { ascending: false })
+      .order('matches', { ascending: false })
+      .order('id', { ascending: true });
 
     if (error) {
       console.error('Error fetching memes from Supabase:', error);
@@ -91,6 +94,9 @@ export async function getTopMemes(limit: number = 10): Promise<Meme[]> {
       .from('memes')
       .select('*')
       .order('rating', { ascending: false })
+      .order('wins', { ascending: false })
+      .order('matches', { ascending: false })
+      .order('id', { ascending: true })
       .limit(limit);
 
     if (error) {
