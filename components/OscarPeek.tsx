@@ -36,12 +36,13 @@ const OscarPeek: React.FC<OscarPeekProps> = ({ onOscarClick }) => {
 
   return (
     <div
-      className="fixed z-20"
+      className="fixed"
       style={{
         bottom: '-50px',
         left: `clamp(10%, ${position}%, 90%)`,
         transform: 'translateX(-50%)',
         pointerEvents: isPeeking ? 'auto' : 'none',
+        zIndex: 9998,
       }}
     >
       <div
