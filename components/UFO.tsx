@@ -65,7 +65,7 @@ const UFO: React.FC = () => {
   if (!isActive) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 35 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
       {/* UFO Container */}
       <div
         className="absolute"

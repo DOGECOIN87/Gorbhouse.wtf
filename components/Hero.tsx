@@ -16,7 +16,11 @@ const getIconClasses = (iconName: string): string => {
   return baseClasses;
 };
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onTempoChange?: (tempo: number) => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onTempoChange }) => {
   return (
     <div className="relative z-40 flex flex-col items-center justify-center w-full h-full text-center p-4 pointer-events-none">
       <div className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 pointer-events-auto">

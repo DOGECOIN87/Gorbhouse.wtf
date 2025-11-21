@@ -10,8 +10,8 @@ const OscarPeek: React.FC<OscarPeekProps> = ({ onOscarClick }) => {
 
   useEffect(() => {
     const scheduleNextPeek = () => {
-      // Random delay between 15-45 seconds before next peek
-      const delay = Math.random() * 30000 + 15000;
+      // Random delay between 8-28 seconds before next peek
+      const delay = Math.random() * 20000 + 8000;
       
       const timeout = setTimeout(() => {
         setIsPeeking(true);

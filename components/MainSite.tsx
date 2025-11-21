@@ -4,7 +4,6 @@ import { fetchGorbhouseMemes, submitVote } from '../services/memeService';
 import MemeCard from './MemeCard';
 import Leaderboard from './Leaderboard';
 import HallOfFame from './HallOfFame';
-import AudiusPlayer from './AudiusPlayer';
 import { DEFAULT_HANDLE } from '../constants';
 
 const INITIAL_RATING = 1000;
@@ -23,9 +22,7 @@ const MainSite: React.FC = () => {
   const [votedFor, setVotedFor] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHallOfFame, setShowHallOfFame] = useState(false);
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const audioRef = useRef<HTMLAudioElement>(null);
   const voteRetryRef = useRef<{ winnerId: string; loserId: string } | null>(null);
 
   useEffect(() => {
@@ -163,7 +160,7 @@ const MainSite: React.FC = () => {
   }
 
   return (
-    <div className="relative min-h-screen w-screen overflow-hidden font-bungee">
+    <div className="relative min-h-screen w-full overflow-x-hidden font-bungee">
       {/* Sky background */}
       <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-sky-200 -z-10" />
       
@@ -176,7 +173,7 @@ const MainSite: React.FC = () => {
       />
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen text-white flex flex-col p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 min-h-screen text-white flex flex-col p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
         <header className="mb-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex-grow text-center sm:text-left">
@@ -193,12 +190,6 @@ const MainSite: React.FC = () => {
                 className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 border-2 border-green-400 whitespace-nowrap"
               >
                 🏠 Home
-              </button>
-              <button
-                onClick={() => setIsPlayerOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-700 text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 hover:scale-105 transition-all duration-300 border-2 border-red-400 whitespace-nowrap"
-              >
-                🎵 Music
               </button>
               <button
                 onClick={() => setShowHallOfFame(!showHallOfFame)}
@@ -228,7 +219,7 @@ const MainSite: React.FC = () => {
                   CLICK YOUR FAVORITE MEME
                 </h2>
                 {meme1 && meme2 && currentPair ? (
-                  <div className="flex-grow flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6">
+                  <div className="flex-grow flex flex-col sm:flex-row items-center justify-around gap-4 md:gap-6">
                     <MemeCard
                       key={meme1.id}
                       meme={meme1}
@@ -252,41 +243,12 @@ const MainSite: React.FC = () => {
                 )}
               </div>
 
-              <div className="lg:w-1/3 p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
+              <div className="lg:w-1/3 p-6 bg-black/50 backdrop-blur-sm rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 max-h-96 lg:max-h-[calc(100vh-12rem)] overflow-y-auto">
                 <Leaderboard memes={sortedMemes} />
               </div>
             </>
           )}
         </main>
-
-        {/* Audio element */}
-        <audio ref={audioRef} className="hidden" />
-
-        {/* Music Player Modal */}
-        {isPlayerOpen && (
-          <div 
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setIsPlayerOpen(false)}
-          >
-            <div 
-              className="relative bg-black/80 rounded-2xl border-2 border-red-400 shadow-2xl shadow-red-500/50"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setIsPlayerOpen(false)}
-                className="absolute -top-4 -right-4 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center shadow-lg transition-colors"
-              >
-                ×
-              </button>
-              <div className="p-6">
-                <AudiusPlayer 
-                  artistHandle={DEFAULT_HANDLE} 
-                  audioRef={audioRef}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Toast Notifications */}
         <div className="fixed bottom-4 right-4 z-40 space-y-2">
