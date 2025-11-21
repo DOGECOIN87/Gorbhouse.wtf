@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Meme } from '../types';
-import { fetchGorbhouseMemes } from '../services/memeService';
-import { updateRatings } from '../services/eloService';
+import { fetchGorbhouseMemes, submitVote } from '../services/memeService';
 import MemeCard from './MemeCard';
 import Leaderboard from './Leaderboard';
 import HallOfFame from './HallOfFame';
 import AudiusPlayer from './AudiusPlayer';
 import { DEFAULT_HANDLE } from '../constants';
 
-const INITIAL_RATING = 1200;
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/vote`;
+const INITIAL_RATING = 1000;
 
 interface Toast {
   id: string;
@@ -90,48 +88,23 @@ const MainSite: React.FC = () => {
     const loser = memes[loserIndex];
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                winnerId: winner.id,
-                loserId: loser.id
-            }),
-        });
+        // Submit vote to Supabase using the RPC function
+        const result = await submitVote(winner.id, loser.id);
         
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Vote failed:', errorText);
-            voteRetryRef.current = { winnerId: winner.id, loserId: loser.id };
-            addToast('Vote failed. Retrying...', 'error');
-            
-            // Retry after 2 seconds
-            setTimeout(() => {
-              if (voteRetryRef.current) {
-                handleVote(winnerIndex, loserIndex);
-              }
-            }, 2000);
-            return;
-        } else {
-            const result = await response.json();
-            const { winner: rWinner, loser: rLoser } = result;
-            
-            // Update state with new ratings
-            const updatedMemes = memes.map((meme) => {
-                if (meme.id === rWinner.id) {
-                    return { ...meme, rating: rWinner.rating };
-                }
-                if (meme.id === rLoser.id) {
-                    return { ...meme, rating: rLoser.rating };
-                }
-                return meme;
-            });
-            setMemes(updatedMemes);
-            voteRetryRef.current = null;
-            addToast('Vote recorded!', 'success');
-        }
+        // Update state with new ratings from Supabase
+        const updatedMemes = memes.map((meme) => {
+            if (meme.id === result.winner.id) {
+                return { ...meme, rating: result.winner.rating };
+            }
+            if (meme.id === result.loser.id) {
+                return { ...meme, rating: result.loser.rating };
+            }
+            return meme;
+        });
+        setMemes(updatedMemes);
+        voteRetryRef.current = null;
+        addToast('Vote recorded!', 'success');
+        
     } catch (error) {
         console.error('Vote error:', error);
         voteRetryRef.current = { winnerId: winner.id, loserId: loser.id };
