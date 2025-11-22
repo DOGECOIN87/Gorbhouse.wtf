@@ -181,8 +181,9 @@ const App: React.FC = () => {
         src="/other-images/trashcoinlogo (4).png" 
         alt="trashcoin" 
         delay={0}
+        href="https://trashcoin.wtf?code=272f2114-24fe-4d13-8cd4-4d24af0737c1"
       />
-      <UFO />
+      <UFO href="https://justaliens.space" />
       <OscarPeek onOscarClick={handleOscarClick} />
       <Rain />
       <Hero onTempoChange={setTempoMultiplier} onEnterApp={handleOscarClick} />

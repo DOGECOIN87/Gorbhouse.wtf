@@ -4,9 +4,10 @@ interface ParachuteItemProps {
   src: string;
   alt: string;
   delay: number;
+  href?: string;
 }
 
-const ParachuteItem: React.FC<ParachuteItemProps> = ({ src, alt, delay }) => {
+const ParachuteItem: React.FC<ParachuteItemProps> = ({ src, alt, delay, href }) => {
   const [startX] = useState(() => Math.random() * 80 + 10); // 10-90% of screen width
   const [duration] = useState(() => Math.random() * 5 + 15); // 15-20 seconds
   const [swayAmount] = useState(() => Math.random() * 30 + 20); // 20-50px sway
@@ -110,14 +111,32 @@ const ParachuteItem: React.FC<ParachuteItemProps> = ({ src, alt, delay }) => {
 
       {/* Image */}
       <div className="flex justify-center">
-        <img
-          src={src}
-          alt={alt}
-          className="w-16 h-16 object-contain drop-shadow-lg"
-          style={{
-            animation: 'parachuteSway 2.5s ease-in-out infinite',
-          }}
-        />
+        {href ? (
+          <a 
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="pointer-events-auto hover:scale-110 transition-transform duration-200"
+          >
+            <img
+              src={src}
+              alt={alt}
+              className="w-16 h-16 object-contain drop-shadow-lg"
+              style={{
+                animation: 'parachuteSway 2.5s ease-in-out infinite',
+              }}
+            />
+          </a>
+        ) : (
+          <img
+            src={src}
+            alt={alt}
+            className="w-16 h-16 object-contain drop-shadow-lg"
+            style={{
+              animation: 'parachuteSway 2.5s ease-in-out infinite',
+            }}
+          />
+        )}
       </div>
     </div>
   );

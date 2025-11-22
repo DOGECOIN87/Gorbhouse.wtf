@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-const UFO: React.FC = () => {
+interface UFOProps {
+  href?: string;
+}
+
+const UFO: React.FC<UFOProps> = ({ href }) => {
   const [isActive, setIsActive] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: -20 });
   const [phase, setPhase] = useState<'descending' | 'hovering' | 'beaming' | 'hidden'>('hidden');
@@ -83,11 +87,26 @@ const UFO: React.FC = () => {
             animation: phase === 'hovering' || phase === 'beaming' ? 'ufoHover 2s ease-in-out infinite' : 'none',
           }}
         >
-          <img
-            src="/other-images/UFO.png"
-            alt="UFO"
-            className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-contain drop-shadow-2xl"
-          />
+          {href ? (
+            <a 
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto block hover:scale-110 transition-transform duration-200"
+            >
+              <img
+                src="/other-images/UFO.png"
+                alt="UFO"
+                className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-contain drop-shadow-2xl"
+              />
+            </a>
+          ) : (
+            <img
+              src="/other-images/UFO.png"
+              alt="UFO"
+              className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-contain drop-shadow-2xl"
+            />
+          )}
         </div>
 
 
