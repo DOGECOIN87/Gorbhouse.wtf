@@ -19,7 +19,7 @@ const ParachuteItem: React.FC<ParachuteItemProps> = ({ src, alt, delay, href }) 
         left: `${startX}%`,
         top: '-150px',
         animation: `fall ${duration}s linear ${delay}s infinite`,
-        zIndex: 5,
+        zIndex: 50,
       }}
     >
       <style>
