@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import FloatingGorb from './components/FloatingGorb';
 import Hero from './components/Hero';
 import ParachuteItem from './components/ParachuteItem';
-import GorboyconsoleFloat from './components/GorboyconsoleFloat';
 import NightSky from './components/NightSky';
 import OscarPeek from './components/OscarPeek';
 import GorbPeek from './components/GorbPeek';
@@ -183,11 +182,10 @@ const App: React.FC = () => {
         alt="trashcoin" 
         delay={0}
       />
-      <GorboyconsoleFloat />
       <UFO />
       <OscarPeek onOscarClick={handleOscarClick} />
       <Rain />
-      <Hero onTempoChange={setTempoMultiplier} />
+      <Hero onTempoChange={setTempoMultiplier} onEnterApp={handleOscarClick} />
     </div>
   );
 };

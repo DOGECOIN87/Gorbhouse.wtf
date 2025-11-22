@@ -18,9 +18,10 @@ const getIconClasses = (iconName: string): string => {
 
 interface HeroProps {
   onTempoChange?: (tempo: number) => void;
+  onEnterApp?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onTempoChange }) => {
+const Hero: React.FC<HeroProps> = ({ onTempoChange, onEnterApp }) => {
   return (
     <div className="relative z-40 flex flex-col items-center justify-center w-full h-full text-center p-4 pointer-events-none">
       <div className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-500/30 shadow-2xl shadow-purple-500/10 pointer-events-auto">
@@ -55,6 +56,17 @@ const Hero: React.FC<HeroProps> = ({ onTempoChange }) => {
               </a>
             );
           })}
+          <button
+            onClick={onEnterApp}
+            className="hover:scale-110 transition-transform duration-200 pointer-events-auto cursor-pointer"
+            aria-label="Enter Meme Ranker"
+          >
+            <img
+              src="/other-images/Gorboyconsole.png"
+              alt="Meme Ranker"
+              className="w-12 h-12 object-contain hover:brightness-125 transition-all duration-200 drop-shadow-lg"
+            />
+          </button>
         </div>
       </div>
     </div>
