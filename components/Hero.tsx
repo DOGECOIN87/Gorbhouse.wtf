@@ -6,7 +6,7 @@ const ICON_URLS: { [key: string]: string } = {
     twitter: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/X_logo_2023.svg/1200px-X_logo_2023.svg.png',
     telegram: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/1024px-Telegram_logo.svg.png',
     pumpfun: '/pump-fun-logo.png',
-    trashbin: '/trashbin-icon.svg'
+    trashbin: '/images/20251206_174951-removebg-preview.png'
 };
 
 const getIconClasses = (iconName: string): string => {
