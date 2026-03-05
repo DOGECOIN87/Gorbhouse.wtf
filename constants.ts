@@ -14,7 +14,7 @@ export const SOCIAL_LINKS = [
     { name: 'Twitter', url: 'https://x.com/GorbhouseSOL?s=20', icon: 'twitter' },
     { name: 'Telegram', url: 'https://t.co/aYDZQP8fBF', icon: 'telegram' },
     { name: 'Pump.fun', url: 'https://pump.fun/coin/GTYRKAD5hD2DKGa27kfTrZz3XfadKgw6bm9nZWh7pump', icon: 'pumpfun' },
-    { name: 'Trashbin', url: 'https://trashbin.fun/trap?from=So11111111111111111111111111111111111111112&to=CNhb9E7AqzRdjUcmBnNnfhiqzuvXHvsGJ1GTbf69fhup', icon: 'trashbin' },
+    { name: 'Trashbin', url: 'https://trashbin.fun/trap?from=So11111111111111111111111111111111111111112&to=AYy19KGYrgQmeJNBXbvsgaKnuQr38iNNSqWq7q1ZzybG', icon: 'trashbin' },
 ];
 
 export const APP_NAME = 'AudiusPlayerDemo';
